@@ -1,0 +1,64 @@
+import java.util.*;
+
+public class Q1TextBenchmark {
+    static String ticketString(int fields, int tickets) {
+        String result = "";
+        for (int t = 0; t < tickets; t++) {
+            for (int f = 0; f < fields; f++) {
+                result = result + "FIELD" + f + "=" + t + ";";
+            }
+        }
+        return result;
+    }
+
+    static String ticketBuilder(int fields, int tickets) {
+        StringBuilder result = new StringBuilder();
+        for (int t = 0; t < tickets; t++) {
+            for (int f = 0; f < fields; f++) {
+                result.append("FIELD").append(f).append("=")
+                      .append(t).append(";");
+            }
+        }
+        return result.toString();
+    }
+
+    static String ticketBuffer(int fields, int tickets) {
+        StringBuffer result = new StringBuffer();
+        for (int t = 0; t < tickets; t++) {
+            for (int f = 0; f < fields; f++) {
+                result.append("FIELD").append(f).append("=")
+                      .append(t).append(";");
+            }
+        }
+        return result.toString();
+    }
+
+    static void measure(String label, Runnable task) {
+        long start = System.nanoTime();
+        task.run();
+        long end = System.nanoTime();
+        System.out.printf("%s: %.3f ms%n", label, (end-start)/1_000_000.0);
+    }
+
+    public static void main(String[] args) {
+        int fields = 50;
+        int tickets = 1000;
+
+        // Warm-up reduces some JVM startup/JIT effects.
+        ticketBuilder(fields, 100);
+        ticketBuffer(fields, 100);
+
+        measure("String", () -> ticketString(fields, tickets));
+        measure("StringBuilder", () -> ticketBuilder(fields, tickets));
+        measure("StringBuffer", () -> ticketBuffer(fields, tickets));
+
+        // Additional workload: 10,000 tickets, 50 fields each.
+        tickets = 10000;
+        final int largeTickets = tickets;
+        measure("StringBuilder large workload",
+                () -> ticketBuilder(fields, largeTickets));
+        measure("StringBuffer large workload",
+                () -> ticketBuffer(fields, largeTickets));
+    }
+}
+Record at least 5 runs for each workload and calc
