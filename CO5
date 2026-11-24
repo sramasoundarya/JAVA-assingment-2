@@ -1,0 +1,31 @@
+import java.util.*;
+
+public class Q4Pharmacy {
+    public static void main(String[] args) {
+        Map<String, Integer> hash = new HashMap<>();
+        Map<String, Integer> tree = new TreeMap<>();
+        Map<String, Integer> linked = new LinkedHashMap<>();
+
+        String[] codes = {"MED103", "MED101", "MED105", "MED102", "MED104"};
+        for (int i=0; i<codes.length; i++) {
+            int stock = 20 + i * 5;
+            hash.put(codes[i], stock);
+            tree.put(codes[i], stock);
+            linked.put(codes[i], stock);
+        }
+
+        System.out.println("HashMap lookup MED103: " + hash.get("MED103"));
+        System.out.println("TreeMap code-order report: " + tree);
+        System.out.println("LinkedHashMap insertion-order report: " + linked);
+
+        int lookups = 100000;
+        long start = System.nanoTime();
+        long sum = 0;
+        for (int i=0; i<lookups; i++) {
+            Integer value = hash.get(codes[i % codes.length]);
+            sum += value;
+        }
+        long elapsed = System.nanoTime() - start;
+        System.out.printf("HashMap %d lookups: %.3f ms (checksum=%d)%n",
+                lookups, elapsed/1_000_000.0, sum);
+    }
